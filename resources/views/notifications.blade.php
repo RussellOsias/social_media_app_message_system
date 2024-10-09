@@ -94,8 +94,5 @@
             </div>
         </div>
         
-        <footer class="mt-10 border-t border-gray-600 pt-4 text-gray-400 text-center">
-            <div>&copy; {{ date('Y') }} Russell Osias. All rights reserved.</div>
-        </footer>
     </div>
 </x-app-layout>

@@ -74,6 +74,22 @@ Route::middleware('auth')->group(function () {
 
     });
     
+  // Footer routes
+Route::get('/privacy', function () {
+    return view('footers.privacy');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return view('footers.terms');
+})->name('terms');
+
+Route::get('/about', function () {
+    return view('footers.about');
+})->name('about');
+
+// Home route for navigation
+Route::view('/', 'dashboard')->name('home');
+
     
     });
     

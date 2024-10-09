@@ -134,17 +134,22 @@
                 </div>
             </div>
         </main>
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2024 Russell Osias Social Media. All rights reserved.</p>
+    <div class="footer-links" style="display: flex; justify-content: center; gap: 1rem;">
+        <a href="{{ route('privacy') }}" style="color: #ff0000; text-decoration: underline;">Privacy Policy</a> |
+        <a href="{{ route('terms') }}" style="color: #ff0000; text-decoration: underline;">Terms of Service</a> |
+        <a href="{{ route('about') }}" style="color: #ff0000; text-decoration: underline;">About Us</a>
+    </div>
+    <div class="social-icons">
+        <a href="#" class="fab fa-facebook"></a>
+        <a href="#" class="fab fa-twitter"></a>
+        <a href="#" class="fab fa-instagram"></a>
+        <a href="#" class="fab fa-linkedin"></a>
+    </div>
+</footer>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>&copy; 2024 Russell Osias Social . All rights reserved.</p>
-            <div class="social-icons">
-                <a href="#" class="fab fa-facebook"></a>
-                <a href="#" class="fab fa-twitter"></a>
-                <a href="#" class="fab fa-instagram"></a>
-                <a href="#" class="fab fa-linkedin"></a>
-            </div>
-        </footer>
     </div>
 </body>
 </html>

@@ -100,16 +100,6 @@
             </ul>
         </section>
 
-        <!-- Footer Section -->
-        <footer class="mt-10 border-t border-gray-600 pt-4">
-            <div class="flex justify-between text-gray-400">
-                <div>&copy; {{ date('Y') }} Russell Osias. All rights reserved.</div>
-                <div class="flex space-x-4">
-                    <a href="#" class="hover:underline">About</a>
-                    <a href="#" class="hover:underline">Privacy Policy</a>
-                    <a href="#" class="hover:underline">Terms of Service</a>
-                </div>
-            </div>
-        </footer>
+    
     </div>
 </x-app-layout>
