@@ -23,12 +23,20 @@ class NewMessageNotification extends Notification
 
     public function toArray($notifiable)
     {
+        // Construct a more user-friendly notification message
+        $senderName = $this->message->sender->name; // Get the sender's name
+        $contentPreview = $this->message->mediaType === 'text' 
+            ? $this->message->content 
+            : 'Sent you a media message.';
+
         return [
-            'message' => "You have a new message from {$this->message->sender->name}: '{$this->message->content}'",
+            'message' => "📩 $senderName: '$contentPreview'", // Friendly message
             'sender_id' => $this->message->sender_id,
             'receiver_id' => $this->message->receiver_id,
             'message_id' => $this->message->id,
             'created_at' => $this->message->created_at,
+            'mediaType' => $this->message->mediaType, // Include media type
+            'media_url' => $this->message->media_url, // Include media URL if available
         ];
     }
 }

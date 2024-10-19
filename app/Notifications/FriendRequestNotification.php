@@ -2,8 +2,6 @@
 
 namespace App\Notifications;
 
-namespace App\Notifications;
-
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\DatabaseMessage;
@@ -17,6 +15,7 @@ class FriendRequestNotification extends Notification
 
     public function __construct($requester)
     {
+        \Log::info("Creating FriendRequestNotification for user {$requester->id}"); // Log when creating notification
         $this->requester = $requester;
     }
 

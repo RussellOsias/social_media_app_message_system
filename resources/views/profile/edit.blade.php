@@ -14,7 +14,31 @@
             <div class="bg-black p-6 rounded-lg shadow-md border border-red-600">
                 <h3 class="text-white text-2xl font-semibold mb-4">👤 {{ __('Your Profile') }}</h3>
 
-                <!-- Profile Boxes -->
+                <!-- Profile Picture Section -->
+                <h4 class="text-white text-xl font-semibold mb-4">📸 {{ __('Profile Picture') }}</h4>
+                @if($user->profile_picture)
+                    <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile Picture" class="w-32 h-32 rounded-full mb-4">
+                @else
+                    <p class="text-gray-400">{{ __('No profile picture uploaded.') }}</p>
+                @endif
+
+                <form action="{{ route('profile.updateProfilePicture') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="file" name="profile_picture" accept="image/*" class="mt-2 mb-4">
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500">{{ __('Update Profile Picture') }}</button>
+                </form>
+
+                <!-- Bio Section -->
+                <h4 class="text-white text-xl font-semibold mb-4">📝 {{ __('Bio') }}</h4>
+                <p class="text-white mb-4">{{ $user->bio ?? 'No bio available.' }}</p>
+
+                <form action="{{ route('profile.updateBio') }}" method="POST">
+                    @csrf
+                    <textarea name="bio" rows="4" class="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-600" placeholder="Tell something about yourself...">{{ old('bio', $user->bio) }}</textarea>
+                    <button type="submit" class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500">{{ __('Save Bio') }}</button>
+                </form>
+
+                <!-- User Details -->
                 @foreach([
                     ['label' => __('Name:'), 'value' => $user->name, 'icon' => '✨'],
                     ['label' => __('Email:'), 'value' => $user->email, 'icon' => '📧'],

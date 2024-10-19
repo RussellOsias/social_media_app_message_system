@@ -11,88 +11,103 @@ use Illuminate\Support\Facades\DB;
 
 class FriendController extends Controller
 {
-    // Display friends, pending requests, and suggested friends// Display friends, pending requests, and suggested friends
-public function index()
-{
-    $user = Auth::user();
+    // Display friends, pending requests, and suggested friends
+    public function index(Request $request)
+    {
+        $user = Auth::user();
 
-    // Suggested friends: Users who are not the current user, are not friends, and have not sent requests
-    $suggestedFriends = User::where('id', '!=', $user->id)
-        ->whereDoesntHave('friends', function ($query) use ($user) {
-            $query->where('friend_id', $user->id);
-        })
-        ->whereDoesntHave('friendRequestsSent', function ($query) use ($user) {
-            $query->where('friend_id', $user->id);
-        })
-        ->get();
+        // Get the search input
+        $search = $request->input('search');
 
-    // Pending requests: Only requests where the current user is the receiver
-    $pendingRequests = DB::table('friend_user')
-        ->where('user_id', $user->id) // User 2's ID
-        ->where('initiator_id', '!=', $user->id) // Exclude requests initiated by User 2
-        ->where('status', 'pending') // Only pending requests
-        ->get();
+        // Suggested friends: Users who are not the current user, are not friends, and have not sent requests
+        $suggestedFriends = User::where('id', '!=', $user->id)
+            ->whereDoesntHave('friends', function ($query) use ($user) {
+                $query->where('friend_id', $user->id);
+            })
+            ->whereDoesntHave('friendRequestsSent', function ($query) use ($user) {
+                $query->where('friend_id', $user->id);
+            });
 
-    // Load initiator details
-    $pendingRequests = $pendingRequests->map(function ($request) {
-        $request->initiator = User::find($request->initiator_id);
-        return $request;
-    });
+        // If a search term is provided, filter suggested friends
+        if ($search) {
+            $suggestedFriends->where(function ($query) use ($search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('bio', 'LIKE', "%{$search}%");
+            });
+        }
 
-    // Current friends: Users who are confirmed friends
-    $friends = $user->friends;
+        $suggestedFriends = $suggestedFriends->get();
 
-    return view('friends', compact('suggestedFriends', 'pendingRequests', 'friends'));
-}
+        // Pending requests: Only requests where the current user is the receiver
+        $pendingRequests = DB::table('friend_user')
+            ->where('user_id', $user->id) // User 2's ID
+            ->where('initiator_id', '!=', $user->id) // Exclude requests initiated by User 2
+            ->where('status', 'pending') // Only pending requests
+            ->get();
 
-        // Send a friend request
-// Send a friend request
-public function addFriend(Request $request, $friendId)
-{
-    $user = Auth::user();
+        // Load initiator details
+        $pendingRequests = $pendingRequests->map(function ($request) {
+            $request->initiator = User::find($request->initiator_id);
+            return $request;
+        });
 
-    // Check if a friendship already exists
-    if ($user->friends()->where('friend_id', $friendId)->exists() || 
-        $user->friendRequestsSent()->where('friend_id', $friendId)->exists()) {
-        return redirect()->back()->with('message', 'Friend request already sent or user is already your friend.');
+        // Current friends: Users who are confirmed friends
+        $friends = $user->friends;
+
+        return view('friends', compact('suggestedFriends', 'pendingRequests', 'friends', 'search'));
     }
 
-    // Create two pending friend requests, marking the initiator in both
-    DB::table('friend_user')->insert([
-        [
-            'user_id' => $user->id,
-            'friend_id' => $friendId,
-            'status' => 'pending',
-            'friendship_type' => 'friend',
-            'initiator_id' => $user->id, // Set initiator_id to the current user
-            'initiated_by' => $user->id, // Add initiated_by field
-            'created_at' => now(),
-            'updated_at' => now(),
-        ],
-        [
-            'user_id' => $friendId,
-            'friend_id' => $user->id,
-            'status' => 'pending',
-            'friendship_type' => 'friend',
-            'initiator_id' => $user->id, // Set initiator_id to the current user
-            'initiated_by' => $user->id, // Add initiated_by field
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]
-    ]);
+    // Other methods remain unchanged...
 
-    // Notify the friend about the request
-    $friend = User::findOrFail($friendId);
-    $friend->notify(new FriendRequestNotification($user));
+    // Send a friend request
+    public function addFriend(Request $request, $friendId)
+    {
+        $user = Auth::user();
 
-    return redirect()->back()->with('message', 'Friend request sent!');
-}
+        // Check if a friendship already exists
+        if ($user->friends()->where('friend_id', $friendId)->exists() || 
+            $user->friendRequestsSent()->where('friend_id', $friendId)->exists()) {
+            return redirect()->back()->with('message', 'Friend request already sent or user is already your friend.');
+        }
+
+        \Log::info("Friend request sent from user {$user->id} to user {$friendId}");
+
+        // Create two pending friend requests
+        DB::table('friend_user')->insert([
+            [
+                'user_id' => $user->id,
+                'friend_id' => $friendId,
+                'status' => 'pending',
+                'friendship_type' => 'friend',
+                'initiator_id' => $user->id,
+                'initiated_by' => $user->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $friendId,
+                'friend_id' => $user->id,
+                'status' => 'pending',
+                'friendship_type' => 'friend',
+                'initiator_id' => $user->id,
+                'initiated_by' => $user->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
+
+        // Notify the friend about the request
+        $friend = User::findOrFail($friendId);
+        $friend->notify(new FriendRequestNotification($user));
+
+        return redirect()->back()->with('message', 'Friend request sent!');
+    }
 
     // Accept a pending friend request
     public function acceptFriend($friendId)
     {
         $user = Auth::user();
-    
+
         // Check if a pending request exists where the current user is not the initiator
         $pendingFriendship = DB::table('friend_user')
             ->where('user_id', $friendId)
@@ -100,7 +115,7 @@ public function addFriend(Request $request, $friendId)
             ->where('status', 'pending')
             ->where('initiator_id', '!=', $user->id)
             ->first();
-    
+
         if ($pendingFriendship) {
             DB::transaction(function () use ($user, $friendId) {
                 // Update both records to confirmed
@@ -108,24 +123,24 @@ public function addFriend(Request $request, $friendId)
                     ->where('user_id', $user->id)
                     ->where('friend_id', $friendId)
                     ->update(['status' => 'confirmed', 'updated_at' => now()]);
-    
+
                 DB::table('friend_user')
                     ->where('user_id', $friendId)
                     ->where('friend_id', $user->id)
                     ->update(['status' => 'confirmed', 'updated_at' => now()]);
-    
+
                 // Notify both users about the new friendship
                 $friend = User::findOrFail($friendId);
                 $friend->notify(new FriendAcceptedNotification($user));
                 $user->notify(new FriendAcceptedNotification($friend));
             });
-    
+
             return redirect()->back()->with('message', 'Friend request accepted.');
         }
-    
+
         return redirect()->back()->with('error', 'No pending friend request found.');
     }
-    
+
     // Cancel a pending friend request
     public function cancelFriendRequest($friendId)
     {
@@ -141,32 +156,31 @@ public function addFriend(Request $request, $friendId)
     }
 
     // Reject a friend request
-    // Reject a friend request
-public function rejectFriend($friendId)
-{
-    $user = Auth::user();
+    public function rejectFriend($friendId)
+    {
+        $user = Auth::user();
 
-    // Start a transaction to ensure both deletions succeed or fail together
-    DB::transaction(function () use ($user, $friendId) {
-        // Delete the incoming friend request for the user rejecting the request
-        DB::table('friend_user')
-            ->where([
-                ['friend_id', $user->id],
-                ['user_id', $friendId],
-                ['status', 'pending']
-            ])->delete();
+        // Start a transaction to ensure both deletions succeed or fail together
+        DB::transaction(function () use ($user, $friendId) {
+            // Delete the incoming friend request for the user rejecting the request
+            DB::table('friend_user')
+                ->where([
+                    ['friend_id', $user->id],
+                    ['user_id', $friendId],
+                    ['status', 'pending']
+                ])->delete();
 
-        // Delete the outgoing friend request for the user who sent the request
-        DB::table('friend_user')
-            ->where([
-                ['user_id', $user->id],
-                ['friend_id', $friendId],
-                ['status', 'pending']
-            ])->delete();
-    });
+            // Delete the outgoing friend request for the user who sent the request
+            DB::table('friend_user')
+                ->where([
+                    ['user_id', $user->id],
+                    ['friend_id', $friendId],
+                    ['status', 'pending']
+                ])->delete();
+        });
 
-    return redirect()->back()->with('message', 'Friend request rejected.');
-}
+        return redirect()->back()->with('message', 'Friend request rejected.');
+    }
 
     // Unfriend a user
     public function unfriend($friendId)
@@ -198,5 +212,4 @@ public function rejectFriend($friendId)
 
         return response()->json($friends); // Return as JSON for API response
     }
-    
 }

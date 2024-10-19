@@ -24,9 +24,14 @@
                     <x-nav-link :href="route('notifications')" :active="request()->routeIs('notifications')" class="text-white hover:text-red-600 transition duration-150">
                         🔔 {{ __('Notifications') }}
                     </x-nav-link>
-                 
+                    <x-nav-link :href="route('groups.index')" :active="request()->routeIs('groups.index')" class="text-white hover:text-red-600 transition duration-150">
+                        🗂️ {{ __('Group Pages') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('profile.show', ['id' => Auth::user()->id])" :active="request()->routeIs('profile.show', ['id' => Auth::user()->id])" class="text-white hover:text-red-600 transition duration-150">
+                        👤 {{ __('Profile') }} 
+                    </x-nav-link>
                     <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')" class="text-white hover:text-red-600 transition duration-150">
-                        👤 {{ __('Edit Profile') }}
+                        ✏️ {{ __('Edit Profile') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -46,7 +51,6 @@
                     </x-slot>
 
                     <x-slot name="content">
-                       
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
@@ -74,7 +78,14 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-black border-t border-red-600">
         <div class="pt-2 pb-3 space-y-1">
-         
+            <x-responsive-nav-link :href="route('groups.index')" class="text-white hover:text-red-600 transition duration-150">
+                🗂️ {{ __('Groups') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('profile.show', ['id' => Auth::user()->id])" class="text-white hover:text-red-600 transition duration-150">
+                👤 {{ __('Profile') }}
+            </x-responsive-nav-link>
+            <!-- Add other responsive links if needed -->
+        </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-red-600">
@@ -84,7 +95,7 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="text-white hover:text-red-600 transition duration-150">
+                <x-responsive-nav-link :href="route('profile.show', ['id' => Auth::user()->id])" class="text-white hover:text-red-600 transition duration-150">
                     👤 {{ __('Profile') }}
                 </x-responsive-nav-link>
                 <form method="POST" action="{{ route('logout') }}">

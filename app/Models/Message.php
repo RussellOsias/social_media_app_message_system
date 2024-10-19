@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Message extends Model
 {
@@ -74,5 +75,26 @@ class Message extends Model
     public function isRead()
     {
         return $this->read_at !== null;
+    }
+
+    /**
+     * Get the latest message between two users.
+     *
+     * @param int $userId1
+     * @param int $userId2
+     * @return \App\Models\Message|null
+     */
+    public static function latestMessageBetween($userId1, $userId2)
+    {
+        return self::where(function ($query) use ($userId1, $userId2) {
+                $query->where('sender_id', $userId1)
+                      ->where('receiver_id', $userId2);
+            })
+            ->orWhere(function ($query) use ($userId1, $userId2) {
+                $query->where('sender_id', $userId2)
+                      ->where('receiver_id', $userId1);
+            })
+            ->orderBy('created_at', 'desc')
+            ->first();
     }
 }

@@ -88,6 +88,15 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all groups the user belongs to.
+     */
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user', 'user_id', 'group_id')
+                    ->withTimestamps();
+    }
+
+    /**
      * Get the full name of the user.
      *
      * @return string
@@ -159,4 +168,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+    public function posts()
+{
+    return $this->hasMany(Post::class); // Adjust to your actual Post model
+}
 }

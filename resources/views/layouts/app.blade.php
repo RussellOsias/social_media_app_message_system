@@ -94,8 +94,6 @@
             text-align: center; /* Centered footer text */
             padding: 1rem; /* Padding for footer */
             color: #fff; /* White text */
-            position: relative; /* Ensure footer stays at the bottom */
-            margin-top: auto; /* Push footer to bottom */
         }
         .social-icons {
             display: flex; /* Flexbox for social icons */
@@ -111,45 +109,106 @@
         .social-icons a:hover {
             color: #cc0000; /* Darker red on hover */
         }
+        .flex-container {
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack items vertically */
+            height: 100vh; /* Full viewport height */
+        }
+        .sidebar {
+            background-color: #111; /* Black sidebar */
+            width: 250px; /* Fixed width for sidebar */
+            padding: 1rem; /* Padding for sidebar */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+        }
+        .content {
+            flex-grow: 1; /* Take remaining space */
+            padding: 1rem; /* Padding for content */
+        }
     </style>
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-black flex flex-col">
+    <div class="flex-container">
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
-        @isset($header)
-            <header class="header-bg shadow">
-                <div class="max-w-7xl mx-auto">
-                    <h1 class="header-text">{{ $header }}</h1>
-                </div>
-            </header>
-        @endisset
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+<aside class="sidebar bg-gray-900 text-white">
+    <!-- Profile Section -->
+    <div class="profile-section flex flex-col items-center py-4">
+        <!-- Profile Picture -->
+        @if(Auth::user()->profile_picture)
+            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"
+                 alt="Profile Picture"
+                 class="w-24 h-24 rounded-full object-cover mb-2">
+        @else
+            <img src="{{ asset('images/default-avatar.png') }}"
+                 alt="Default Profile Picture"
+                 class="w-24 h-24 rounded-full object-cover mb-2">
+        @endif
+        
+        <!-- User Name -->
+        <h2 class="text-xl font-semibold">{{ Auth::user()->name }}</h2>
+    </div>
 
-        <!-- Page Content -->
-        <main class="bg-black py-8 flex-grow">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-black border-red border-2 shadow-sm rounded-lg p-6">
-                    {{ $slot }}
+    <!-- Sidebar Navigation -->
+    <div class="flex flex-col pt-4">
+        <x-responsive-nav-link :href="route('dashboard')" class="text-white hover:text-red-600 transition duration-150">
+            🏠 {{ __('Home Page') }}
+        </x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('friends')" class="text-white hover:text-red-600 transition duration-150">
+            👥 {{ __('Friendlist') }}
+        </x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('messages.index')" class="text-white hover:text-red-600 transition duration-150">
+            💬 {{ __('Messages') }}
+        </x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('notifications')" class="text-white hover:text-red-600 transition duration-150">
+            🔔 {{ __('Notifications') }}
+        </x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('groups.index')" class="text-white hover:text-red-600 transition duration-150">
+            🗂️ {{ __('Group Pages') }}
+        </x-responsive-nav-link>
+        <x-responsive-nav-link :href="route('profile.edit')" class="text-white hover:text-red-600 transition duration-150">
+            👤 {{ __('Edit Profile') }}
+        </x-responsive-nav-link>
+    </div>
+</aside>
+
+
+            <!-- Main Content -->
+            <main class="content bg-black flex-grow">
+                <!-- Page Heading -->
+                @isset($header)
+                    <header class="header-bg shadow">
+                        <div class="max-w-7xl mx-auto">
+                            <h1 class="header-text">{{ $header }}</h1>
+                        </div>
+                    </header>
+                @endisset
+
+                <!-- Page Content Here -->
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div class="bg-black border-red border-2 shadow-sm rounded-lg p-6">
+                        {{ $slot }}
+                    </div>
                 </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Russell Osias Social Media. All rights reserved.</p>
+            <div class="footer-links" style="display: flex; justify-content: center; gap: 1rem;">
+                <a href="{{ route('privacy') }}" style="color: #ff0000; text-decoration: underline;">Privacy Policy</a> |
+                <a href="{{ route('terms') }}" style="color: #ff0000; text-decoration: underline;">Terms of Service</a> |
+                <a href="{{ route('about') }}" style="color: #ff0000; text-decoration: underline;">About</a>
             </div>
-        </main>
-<!-- Footer -->
-<footer class="footer">
-    <p>&copy; 2024 Russell Osias Social Media. All rights reserved.</p>
-    <div class="footer-links" style="display: flex; justify-content: center; gap: 1rem;">
-        <a href="{{ route('privacy') }}" style="color: #ff0000; text-decoration: underline;">Privacy Policy</a> |
-        <a href="{{ route('terms') }}" style="color: #ff0000; text-decoration: underline;">Terms of Service</a> |
-        <a href="{{ route('about') }}" style="color: #ff0000; text-decoration: underline;">About Us</a>
-    </div>
-    <div class="social-icons">
-        <a href="#" class="fab fa-facebook"></a>
-        <a href="#" class="fab fa-twitter"></a>
-        <a href="#" class="fab fa-instagram"></a>
-        <a href="#" class="fab fa-linkedin"></a>
-    </div>
-</footer>
-
+            <div class="social-icons">
+                <a href="#" class="fab fa-facebook-f"></a>
+                <a href="#" class="fab fa-twitter"></a>
+                <a href="#" class="fab fa-instagram"></a>
+            </div>
+        </footer>
     </div>
 </body>
 </html>

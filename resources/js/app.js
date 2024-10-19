@@ -14,7 +14,8 @@ angular.module('socialApp', [])
     $scope.posts = [];
     $scope.newPost = {
         content: '',
-        visibility: 'Public' // Pre-select 'Public'
+        visibility: 'Public', // Pre-select 'Public'
+        file: null // Initialize file to null
     };
 
     // Fetch posts when the controller initializes
@@ -29,21 +30,38 @@ angular.module('socialApp', [])
     };
 
     $scope.createPost = function() {
-        $http.post('/posts', $scope.newPost)
-            .then(function(response) {
-                $scope.posts.unshift(response.data);
-                $scope.newPost = {}; // Clear form
-            }, function(error) {
-                console.error('Error creating post:', error);
-                alert('Error creating post');
-            });
+        var formData = new FormData();
+        formData.append('content', $scope.newPost.content);
+        formData.append('visibility', $scope.newPost.visibility);
+        
+        // Check if a file is selected and append it to the form data
+        if ($scope.newPost.file) {
+            formData.append('file', $scope.newPost.file);
+        }
+        
+        $http.post('/posts', formData, {
+            headers: { 'Content-Type': undefined },
+            transformRequest: angular.identity
+        })
+        .then(function(response) {
+            $scope.posts.unshift(response.data);
+            $scope.newPost = {
+                content: '',
+                visibility: 'Public',
+                file: null // Reset file
+            }; // Clear form
+        })
+        .catch(function(error) {
+            console.error('Error creating post:', error);
+            alert('Error creating post: ' + (error.data.message || 'Something went wrong'));
+        });
     };
 
     $scope.enableEditPost = function(post) {
         post.isEditing = true; // Set the editing mode
         post.originalContent = post.content; // Store original content for cancellation
     };
-    
+
     $scope.editPost = function(post) {
         $http.patch('/posts/' + post.id, { content: post.content })
             .then(function(response) {
@@ -53,7 +71,7 @@ angular.module('socialApp', [])
                 alert('Error editing post');
             });
     };
-    
+
     $scope.cancelEditPost = function(post) {
         post.content = post.originalContent; // Reset to original content
         post.isEditing = false; // Exit editing mode
@@ -80,6 +98,20 @@ angular.module('socialApp', [])
     };
 
     $scope.deleteComment = function(post, comment) {
+        console.log('Post:', post); // Check the post structure
+        console.log('Comment:', comment); // Check the comment structure
+    
+        if (!post || !post.id) {
+            console.error('Post is undefined or does not have an ID.');
+            alert('Error: Post is not valid.');
+            return;
+        }
+        if (!comment || !comment.id) {
+            console.error('Comment is undefined or does not have an ID.');
+            alert('Error: Comment is not valid.');
+            return;
+        }
+    
         if (confirm('Are you sure you want to delete this comment?')) {
             $http.delete('/posts/' + post.id + '/comments/' + comment.id)
                 .then(function(response) {
@@ -91,10 +123,12 @@ angular.module('socialApp', [])
                     alert(response.data.message);
                 }, function(error) {
                     console.error('Error deleting comment:', error);
-                    alert('Error deleting comment');
+                    alert('Error deleting comment: ' + (error.data.message || 'Something went wrong'));
                 });
         }
     };
+    
+    
 
     $scope.likePost = function(post) {
         $http.post('/posts/' + post.id + '/like')
@@ -114,14 +148,26 @@ angular.module('socialApp', [])
     };
 
     $scope.addComment = function(post) {
-        $http.post('/posts/' + post.id + '/comment', { comment: post.newComment })
-            .then(function(response) {
-                post.comments.push(response.data); // Add the new comment to the post's comments array
-                post.newComment = ''; // Clear the input field after successful comment submission
-            }, function(error) {
-                console.error('Error adding comment:', error);
-                alert('Error adding comment');
-            });
+        var formData = new FormData();
+        formData.append('comment', post.newComment);
+
+        // Check if a file is selected for the comment
+        if (post.commentFile) {
+            formData.append('file', post.commentFile);
+        }
+
+        $http.post('/posts/' + post.id + '/comment', formData, {
+            headers: { 'Content-Type': undefined },
+            transformRequest: angular.identity
+        })
+        .then(function(response) {
+            post.comments.push(response.data); // Add the new comment to the post's comments array
+            post.newComment = ''; // Clear the input field after successful comment submission
+            post.commentFile = null; // Reset the file input
+        }, function(error) {
+            console.error('Error adding comment:', error);
+            alert('Error adding comment: ' + (error.data.message || 'Something went wrong'));
+        });
     };
 
     $scope.deletePost = function(post) {
@@ -173,34 +219,40 @@ angular.module('socialApp', [])
             });
     };
 
-    // Function to send a message
-    $scope.sendMessage = function() {
-        if (!$scope.newMessage.receiver_id || !$scope.newMessage.content) {
-            alert('Please select a receiver and enter a message.');
-            return;
-        }
+// Function to send a message
+$scope.sendMessage = function() {
+    if (!$scope.newMessage.receiver_id) {
+        alert('Please select a receiver.');
+        return;
+    }
 
-        $http.post('/messages/send', $scope.newMessage)
-            .then(function(response) {
-                // Push the new message to the local messages array
-                $scope.messages.push(response.data.message);
-
-                // Mark the last message as read if it's a reply
-                $http.post('/messages/markAsRead/' + response.data.message.id)
-                    .then(function() {
-                        console.log('Message marked as read.');
-                    }, function(error) {
-                        console.error('Error marking message as read:', error);
-                    });
-
-                // Clear the message content
-                $scope.newMessage.content = '';
-            }, function(error) {
-                console.error('Error sending message:', error);
-                alert('Error sending message: ' + (error.data.message || 'Something went wrong'));
-            });
+    // Prepare the data to send
+    let dataToSend = {
+        receiver_id: $scope.newMessage.receiver_id,
+        content: $scope.newMessage.content || null // Allow content to be null
     };
 
+    // Send the message
+    $http.post('/messages/send', dataToSend)
+        .then(function(response) {
+            // Push the new message to the local messages array
+            $scope.messages.push(response.data.message);
+
+            // Mark the last message as read if it's a reply
+            $http.post('/messages/markAsRead/' + response.data.message.id)
+                .then(function() {
+                    console.log('Message marked as read.');
+                }, function(error) {
+                    console.error('Error marking message as read:', error);
+                });
+
+            // Clear the message content
+            $scope.newMessage.content = ''; // Clear input after sending
+        }, function(error) {
+            console.error('Error sending message:', error);
+            alert('Error sending message: ' + (error.data.message || 'Something went wrong'));
+        });
+};
     // Function to listen for new messages via Laravel Echo
     $scope.listenForMessages = function(receiverId) {
         Echo.private('chat.' + receiverId)
@@ -230,8 +282,6 @@ angular.module('socialApp', [])
     // Fetch users on controller initialization
     $scope.getUsers();
 })
-
-
 .controller('FriendController', function($scope, $http) {
     // FriendController code remains unchanged
 });
