@@ -5,7 +5,7 @@
     <div class="bg-black p-6 rounded-lg shadow-md max-w-md mx-auto mt-10 border border-red-600 text-white">
         <!-- Welcome Header with Emoji -->
         <h2 class="text-center text-3xl font-semibold text-white mb-6">
-            👋 {{ __('Welcome Back!') }}
+            👋 {{ __('Russell Osias Social Media') }}
         </h2>
 
         <form method="POST" action="{{ route('login') }}">

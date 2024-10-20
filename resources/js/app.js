@@ -11,6 +11,8 @@ Alpine.start();
 // Define the AngularJS application module
 angular.module('socialApp', [])
 .controller('PostController', function($scope, $http) {
+   
+   
     $scope.posts = [];
     $scope.newPost = {
         content: '',
@@ -187,8 +189,93 @@ angular.module('socialApp', [])
         }
     };
 
+    
+    
+    
+    
     $scope.getPosts();  // Fetch posts when the controller initializes
+   
+   
+   
+   
+    $scope.stories = [];
+    $scope.newStory = {}; // Initialize newStory object
+    
+    // Function to create a story
+    $scope.createStory = function () {
+        const formData = new FormData();
+        if ($scope.newStory.file) {
+            formData.append('media', $scope.newStory.file); // Append the file
+        }
+        if ($scope.newStory.content) {
+            formData.append('content', $scope.newStory.content); // Append the text content
+        }
+    
+        $http.post('/stories', formData, {
+            headers: { 'Content-Type': undefined }
+        }).then(function (response) {
+            alert('Story uploaded successfully.');
+            $scope.getStories();
+            $scope.newStory = {}; // Clear form fields
+            $scope.closeStoryUploadModal(); // Close modal after upload
+        }, function (error) {
+            console.error('Error uploading story:', error);
+            alert('Error uploading story. Please try again.');
+        });
+    };
+    
+    // Function to get all stories
+    $scope.getStories = function () {
+        $http.get('/stories').then(function (response) {
+            $scope.stories = response.data;
+        }, function (error) {
+            console.error('Error fetching stories:', error);
+        });
+    };
+    
+    // Call getStories on page load to load existing stories
+    $scope.getStories();
+    
+    $scope.showStoryUploadModal = function () {
+        document.getElementById('storyUploadModal').classList.remove('hidden');
+    };
+    
+    $scope.closeStoryUploadModal = function () {
+        document.getElementById('storyUploadModal').classList.add('hidden');
+    };
+    
+    // Function to view story in fullscreen
+    $scope.viewStory = function (story) {
+        $scope.selectedStory = story; // Set the selected story for viewing
+        document.getElementById('storyFullscreenModal').classList.remove('hidden');
+    };
+    
+    // Function to close the fullscreen modal
+    $scope.closeStoryFullscreenModal = function () {
+        document.getElementById('storyFullscreenModal').classList.add('hidden');
+    };
+    
+    $scope.goToStory = function (storyId) {
+        window.location.href = '/story/' + storyId; // Adjust this URL as per your routing structure
+    };
+    
+   
+    $scope.getMostRecentStories = function(stories) {
+        const recentStoriesMap = {};
+    
+        stories.forEach(story => {
+            const userId = story.user.id; // Assuming `story.user.id` is available
+            if (!recentStoriesMap[userId] || new Date(story.created_at) > new Date(recentStoriesMap[userId].created_at)) {
+                recentStoriesMap[userId] = story;
+            }
+        });
+    
+        return Object.values(recentStoriesMap);
+    };
+
+    
 })
+
 .controller('MessageController', function($scope, $http) {
     $scope.messages = [];
     $scope.users = [];

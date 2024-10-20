@@ -4,6 +4,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\StoryController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\HelpController;
@@ -96,8 +97,21 @@ Route::middleware('auth')->group(function () {
       
         Route::get('/search', [MessageController::class, 'search'])->name('messages.search');
     });
+    
+    //Story
+    Route::middleware('auth')->group(function () {
+        Route::post('/stories', [StoryController::class, 'store']);
+        Route::get('/story/{id}', [StoryController::class, 'show'])->name('story.show');
+        Route::get('/stories/{id}', [StoryController::class, 'show'])->name('story.show');
+        Route::delete('/stories/{id}', [StoryController::class, 'delete'])->name('story.delete');
+        Route::delete('/story/{id}', [StoryController::class, 'delete'])->name('story.delete');
 
+        // In routes/web.php
+Route::get('/stories/{id}', [StoryController::class, 'show'])->name('stories.show');
 
+Route::get('/story/{id}', [StoryController::class, 'show'])->name('story.show');
+        Route::get('/stories', [StoryController::class, 'index']);
+    });
     // Footer routes
     Route::get('/privacy', function () {
         return view('footers.privacy');

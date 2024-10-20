@@ -6,6 +6,54 @@
     </x-slot>
 
     <div ng-app="socialApp" ng-controller="PostController" class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-gray-800 text-white p-6 rounded-lg shadow-md">
+       
+        
+
+      <!-- MyDay/Stories Section --> 
+<div class="bg-gray-700 p-4 rounded-lg shadow-md mb-6 border border-gray-600">
+    <h3 class="text-gray-400 text-xl mb-4">📸 MyDay</h3>
+    <div class="flex flex-wrap space-x-4">
+        <!-- Story creation card -->
+        <div class="flex-shrink-0 w-32 h-48 bg-gray-600 rounded-lg shadow-md p-2 hover:scale-105 transform transition-transform cursor-pointer" ng-click="showStoryUploadModal()">
+            <div class="flex items-center justify-center h-full text-white text-center">
+                <span class="text-sm">+ Add Your Story</span>
+            </div>
+        </div>
+
+        <!-- Display most recent stories -->
+        <div ng-repeat="story in getMostRecentStories(stories)" class="flex-shrink-0 w-32 h-48 relative mb-4" ng-click="goToStory(story.id)">
+            <div class="absolute top-2 left-2 flex items-center z-10">
+                <!-- Display the profile picture of the story's author overlapping the story -->
+                <img ng-src="http://127.0.0.1:8000/storage/@{{ story.user.profile_picture }}" alt="@{{ story.user.name }}'s Profile Picture" class="rounded-full w-12 h-12 object-cover border-2 border-gray-800">
+                <p class="text-gray-300 text-xs truncate ml-2">@{{ story.user.name }}</p>
+            </div>
+            <div class="flex-shrink-0 mb-2">
+                <!-- Use mediaType to determine how to display the story -->
+                <img ng-if="story.mediaType === 'photo'" ng-src="{{ asset('storage/media') }}/@{{ story.media_url }}" class="w-full h-full rounded-lg object-cover" alt="Story Image">
+                <video ng-if="story.mediaType === 'video'" ng-src="{{ asset('storage/media') }}/@{{ story.media_url }}" class="w-full h-full rounded-lg" autoplay muted loop></video>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding a new story -->
+<div id="storyUploadModal" class="modal hidden">
+    <div class="modal-content bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm mx-auto mt-20 transition-transform transform scale-95 hover:scale-100 duration-300">
+        <span class="close text-gray-400 hover:text-gray-200 cursor-pointer" ng-click="closeStoryUploadModal()">&times;</span>
+        <h2 class="text-white text-2xl font-semibold mb-4 text-center">📸 Upload Your Story</h2>
+        <form ng-submit="createStory()" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label class="block text-gray-300 text-sm font-bold mb-2" for="fileUpload">Select a photo or video</label>
+                <input type="file" id="fileUpload" accept="image/*,video/*" ng-model="newStory.file" onchange="angular.element(this).scope().newStory.file = this.files[0]" class="bg-gray-700 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full" />
+            </div>
+          
+               
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg w-full transition duration-200 ease-in-out transform hover:scale-105">📤 Upload Story</button>
+        </form>
+    </div>
+</div>
+
+
 
         <!-- Create Post Form -->
         <form ng-submit="createPost()" enctype="multipart/form-data" class="bg-gray-700 p-4 rounded-lg shadow-md mb-6 border border-gray-600 transition-transform transform hover:scale-105">
@@ -214,16 +262,7 @@
     </li>
 </ul>
            
-        <!-- Sidebar Section -->
-        <div class="mt-8 bg-gray-700 p-4 rounded-lg shadow-md">
-            <h3 class="text-lg font-semibold text-gray-300 mb-4">Trending Topics</h3>
-            <ul class="space-y-2">
-                <li><a href="#" class="text-blue-500 hover:underline">#AngularJS</a></li>
-                <li><a href="#" class="text-blue-500 hover:underline">#TailwindCSS</a></li>
-                <li><a href="#" class="text-blue-500 hover:underline">#WebDevelopment</a></li>
-                <li><a href="#" class="text-blue-500 hover:underline">#JavaScript</a></li>
-                <li><a href="#" class="text-blue-500 hover:underline">#SocialMedia</a></li>
-            </ul>
+      
         </div>
     </div>
 </x-app-layout>
