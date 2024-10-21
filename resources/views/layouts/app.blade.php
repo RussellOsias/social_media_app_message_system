@@ -21,6 +21,26 @@
             color: #fff; /* White text for contrast */
             font-family: 'Figtree', sans-serif; /* Updated font family */
             line-height: 1.6; /* Improved readability */
+            position: relative; /* Needed for the absolute background */
+        }
+        .bg-animation {
+            position: fixed; /* Keep it fixed during scroll */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(#000, #ff0000, #000);
+            animation: animate 5s linear infinite;
+            z-index: -1; /* Behind all other content */
+            opacity: 0.5; /* Make the background more see-through */
+        }
+        @keyframes animate {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100%);
+            }
         }
         .header-bg {
             background: linear-gradient(to right, #ff0000, #cc0000); /* Gradient header */
@@ -45,15 +65,13 @@
             transform: scale(1.05); /* Slightly enlarge button */
         }
         .bg-black {
-            background-color: #111; /* Darker black for content background */
+            background-color: rgba(17, 17, 17, 0.8); /* Slightly transparent black for content background */
             border-radius: 0.5rem; /* Rounded corners */
             padding: 1rem; /* Padding for content */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Light shadow for depth */
             transition: background-color 0.3s ease; /* Transition effect */
         }
-        .bg-black:hover {
-            background-color: #222; /* Slightly lighter on hover */
-        }
+      
         .border-red {
             border-color: #ff0000; /* Red border */
         }
@@ -113,6 +131,7 @@
             display: flex; /* Use flexbox */
             flex-direction: column; /* Stack items vertically */
             height: 100vh; /* Full viewport height */
+            overflow-y: auto; /* Enable vertical scrolling */
         }
         .sidebar {
             background-color: #111; /* Black sidebar */
@@ -128,52 +147,53 @@
     </style>
 </head>
 <body class="font-sans antialiased">
+    <div class="bg-animation"></div> <!-- Red animation background -->
+
     <div class="flex-container">
         @include('layouts.navigation')
 
         <div class="flex flex-1">
             <!-- Sidebar -->
-<aside class="sidebar bg-gray-900 text-white">
-    <!-- Profile Section -->
-    <div class="profile-section flex flex-col items-center py-4">
-        <!-- Profile Picture -->
-        @if(Auth::user()->profile_picture)
-            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"
-                 alt="Profile Picture"
-                 class="w-24 h-24 rounded-full object-cover mb-2">
-        @else
-            <img src="{{ asset('images/default-avatar.png') }}"
-                 alt="Default Profile Picture"
-                 class="w-24 h-24 rounded-full object-cover mb-2">
-        @endif
-        
-        <!-- User Name -->
-        <h2 class="text-xl font-semibold">{{ Auth::user()->name }}</h2>
-    </div>
+            <aside class="sidebar bg-gray-900 text-white">
+                <!-- Profile Section -->
+                <div class="profile-section flex flex-col items-center py-4">
+                    <!-- Profile Picture -->
+                    @if(Auth::user()->profile_picture)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"
+                             alt="Profile Picture"
+                             class="w-24 h-24 rounded-full object-cover mb-2">
+                    @else
+                        <img src="{{ asset('images/default-avatar.png') }}"
+                             alt="Default Profile Picture"
+                             class="w-24 h-24 rounded-full object-cover mb-2">
+                    @endif
 
-    <!-- Sidebar Navigation -->
-    <div class="flex flex-col pt-4">
-        <x-responsive-nav-link :href="route('dashboard')" class="text-white hover:text-red-600 transition duration-150">
-            🏠 {{ __('Home Page') }}
-        </x-responsive-nav-link>
-        <x-responsive-nav-link :href="route('friends')" class="text-white hover:text-red-600 transition duration-150">
-            👥 {{ __('Friendlist') }}
-        </x-responsive-nav-link>
-        <x-responsive-nav-link :href="route('messages.index')" class="text-white hover:text-red-600 transition duration-150">
-            💬 {{ __('Messages') }}
-        </x-responsive-nav-link>
-        <x-responsive-nav-link :href="route('notifications')" class="text-white hover:text-red-600 transition duration-150">
-            🔔 {{ __('Notifications') }}
-        </x-responsive-nav-link>
-        <x-responsive-nav-link :href="route('groups.index')" class="text-white hover:text-red-600 transition duration-150">
-            🗂️ {{ __('Group Pages') }}
-        </x-responsive-nav-link>
-        <x-responsive-nav-link :href="route('profile.edit')" class="text-white hover:text-red-600 transition duration-150">
-            👤 {{ __('Edit Profile') }}
-        </x-responsive-nav-link>
-    </div>
-</aside>
+                    <!-- User Name -->
+                    <h2 class="text-xl font-semibold">{{ Auth::user()->name }}</h2>
+                </div>
 
+                <!-- Sidebar Navigation -->
+                <div class="flex flex-col pt-4">
+                    <x-responsive-nav-link :href="route('dashboard')" class="text-white hover:text-red-600 transition duration-150">
+                        🏠 {{ __('Home Page') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('friends')" class="text-white hover:text-red-600 transition duration-150">
+                        👥 {{ __('Friendlist') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('messages.index')" class="text-white hover:text-red-600 transition duration-150">
+                        💬 {{ __('Messages') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('notifications')" class="text-white hover:text-red-600 transition duration-150">
+                        🔔 {{ __('Notifications') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('groups.index')" class="text-white hover:text-red-600 transition duration-150">
+                        🗂️ {{ __('Group Pages') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('profile.edit')" class="text-white hover:text-red-600 transition duration-150">
+                        👤 {{ __('Edit Profile') }}
+                    </x-responsive-nav-link>
+                </div>
+            </aside>
 
             <!-- Main Content -->
             <main class="content bg-black flex-grow">

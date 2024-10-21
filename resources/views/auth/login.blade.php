@@ -1,83 +1,236 @@
-<x-guest-layout class="bg-black min-h-screen">
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!doctype html>
+<html lang="en"> 
 
-    <div class="bg-black p-6 rounded-lg shadow-md max-w-md mx-auto mt-10 border border-red-600 text-white">
-        <!-- Welcome Header with Emoji -->
-        <h2 class="text-center text-3xl font-semibold text-white mb-6">
-            👋 {{ __('Welcome Back!') }}
-        </h2>
+<head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Russell Osias Social Media - Login</title> 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+    *
+    {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Quicksand', sans-serif;
+    }
+    body 
+    {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #000;
+    }
+    section 
+    {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2px;
+      flex-wrap: wrap;
+      overflow: hidden;
+    }
+    section::before 
+    {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(#000, #f00, #000); /* Changed from green to red */
+      animation: animate 5s linear infinite;
+    }
+    @keyframes animate 
+    {
+      0% {
+        transform: translateY(-100%);
+      }
+      100% {
+        transform: translateY(100%);
+      }
+    }
+    section span 
+    {
+      position: relative;
+      display: block;
+      width: calc(6.25vw - 2px);
+      height: calc(6.25vw - 2px);
+      background: #181818;
+      z-index: 2;
+      transition: 1.5s;
+    }
+    section span:hover 
+    {
+      background: #f00; /* Changed hover color to red */
+      transition: 0s;
+    }
+    section .signin
+    {
+      position: absolute;
+      width: 400px;
+      background: #222;  
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      border-radius: 4px;
+      box-shadow: 0 15px 35px rgba(0,0,0,9);
+    }
+    section .signin .content 
+    {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 40px;
+    }
+    section .signin .content h2 
+    {
+      font-size: 2em;
+      color: #f00; /* Changed title color to red */
+      text-transform: uppercase;
+    }
+    section .signin .content .form 
+    {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    section .signin .content .form .inputBox
+    {
+      position: relative;
+      width: 100%;
+    }
+    section .signin .content .form .inputBox input 
+    {
+      position: relative;
+      width: 100%;
+      background: #333;
+      border: none;
+      outline: none;
+      padding: 25px 10px 7.5px;
+      border-radius: 4px;
+      color: #fff;
+      font-weight: 500;
+      font-size: 1em;
+    }
+    section .signin .content .form .inputBox i 
+    {
+      position: absolute;
+      left: 0;
+      padding: 15px 10px;
+      font-style: normal;
+      color: #aaa;
+      transition: 0.5s;
+      pointer-events: none;
+    }
+    .signin .content .form .inputBox input:focus ~ i,
+    .signin .content .form .inputBox input:valid ~ i
+    {
+      transform: translateY(-7.5px);
+      font-size: 0.8em;
+      color: #fff;
+    }
+    .signin .content .form .links 
+    {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+    .signin .content .form .links a 
+    {
+      color: #fff;
+      text-decoration: none;
+    }
+    .signin .content .form .links a:nth-child(2)
+    {
+      color: #f00; /* Changed link color to red */
+      font-weight: 600;
+    }
+    .signin .content .form .inputBox input[type="submit"]
+    {
+      padding: 10px;
+      background: #f00; /* Changed button background to red */
+      color: #000;
+      font-weight: 600;
+      font-size: 1.35em;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    input[type="submit"]:active
+    {
+      opacity: 0.6;
+    }
+    
+    @media (max-width: 900px)
+    {
+      section span 
+      {
+        width: calc(10vw - 2px);
+        height: calc(10vw - 2px);
+      }
+    }
+    @media (max-width: 600px)
+    {
+      section span 
+      {
+        width: calc(20vw - 2px);
+        height: calc(20vw - 2px);
+      }
+    }
+  </style>
+</head> 
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+<body> <!-- partial:index.partial.html --> 
 
-            <!-- Email Address -->
-            <div class="mb-4">
-                <x-input-label for="email" :value="__('📧 Email Address')" class="text-lg font-medium text-gray-200" />
-                <x-text-input id="email" class="block mt-1 w-full p-3 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-400 bg-gray-800 text-white" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-                <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400" />
-            </div>
-
-            <!-- Password -->
-            <div class="mb-6">
-                <x-input-label for="password" :value="__('🔒 Your Password')" class="text-lg font-medium text-gray-200" />
-                <x-text-input id="password" class="block mt-1 w-full p-3 border border-gray-500 rounded-lg focus:ring-2 focus:ring-blue-400 bg-gray-800 text-white" type="password" name="password" required autocomplete="current-password" />
-                <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-400" />
-            </div>
-
-            <!-- Remember Me -->
-            <div class="flex items-center justify-between mb-6">
-                <label for="remember_me" class="inline-flex items-center text-sm text-gray-400">
-                    <input id="remember_me" type="checkbox" class="rounded border-gray-500 bg-gray-800 text-blue-600 shadow-sm focus:ring-blue-400" name="remember">
-                    <span class="ms-2">{{ __('Remember Me') }}</span>
-                </label>
-
-                @if (Route::has('password.request'))
-                    <a class="text-sm text-blue-400 hover:underline" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-            </div>
-
-            <!-- Sign In Button -->
-            <div class="mt-6 text-center">
-                <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg mt-3 transition duration-300 ease-in-out transform hover:scale-105 shadow-md">
-                    {{ __('Sign In') }} 🚪
-                </button>
-            </div>
-        </form>
-
-        <!-- Divider -->
-        <div class="my-6 flex items-center justify-center">
-            <div class="w-full h-px bg-gray-700"></div>
-            <span class="px-2 text-sm text-gray-400">or</span>
-            <div class="w-full h-px bg-gray-700"></div>
+ <section> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> <span></span> 
+  <!-- Improved Login Form Design -->
+<div class="signin">
+  <div class="content">
+    <h2>Sign In</h2>
+    <div class="form">
+      <form method="POST" action="{{ route('login') }}">
+        @csrf
+        <!-- Email Field -->
+        <div class="inputBox">
+        <label for="email">📧 Email Address</label>
+          <input type="email" id="email" name="email" required autofocus autocomplete="username" placeholder=" ">
+         
         </div>
 
-        <!-- Create Account Section -->
-        <div class="mt-6 text-center">
-            <p class="text-sm text-gray-400">{{ __("Don't have an account?") }}</p>
-            <a href="{{ route('register') }}">
-                <button class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-lg mt-3 transition duration-300 ease-in-out transform hover:scale-105 shadow-md">
-                    {{ __('Create an Account') }} ✍️
-                </button>
-            </a>
+        <!-- Password Field -->
+        <div class="inputBox">
+        <label for="password">🔒 Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder=" ">
+          
         </div>
 
-        <!-- Social Login Section -->
-        <div class="mt-8 text-center">
-            <p class="text-gray-400 text-sm">Sign in with</p>
-            <div class="flex justify-center space-x-4 mt-4">
-                <a href="#" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-110">
-                    <span class="text-lg">🔵</span> <!-- Facebook-like button -->
-                </a>
-                <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-white hover:bg-gray-700 transition duration-300 ease-in-out transform hover:scale-110">
-                    <span class="text-lg">🔘</span> <!-- Custom social login button -->
-                </a>
-                <a href="#" class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-110">
-                    <span class="text-lg">🔴</span> <!-- Google-like button -->
-                </a>
-            </div>
+        <!-- Links (Forgot Password / Signup) -->
+        <div class="links">
+          @if (Route::has('password.request'))
+          <a href="{{ route('password.request') }}" class="link">Forgot Password?</a>
+          @endif
+          <a href="{{ route('register') }}" class="link">Sign Up</a>
         </div>
+
+        <!-- Submit Button -->
+        <div class="inputBox">
+          <input type="submit" value="Login" class="submit-btn">
+        </div>
+      
+          </form>
+        </div>
+      </div>
     </div>
-</x-guest-layout>
+  </section>
+</body>
+
+</html>
