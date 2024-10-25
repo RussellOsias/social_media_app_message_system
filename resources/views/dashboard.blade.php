@@ -9,7 +9,7 @@
        
         
 
-      <!-- MyDay/Stories Section --> 
+    <!-- MyDay/Stories Section --> 
 <div class="bg-gray-700 p-4 rounded-lg shadow-md mb-6 border border-gray-600">
     <h3 class="text-gray-400 text-xl mb-4">📸 MyDay</h3>
     <div class="flex flex-wrap space-x-4">
@@ -27,10 +27,10 @@
                 <img ng-src="http://127.0.0.1:8000/storage/@{{ story.user.profile_picture }}" alt="@{{ story.user.name }}'s Profile Picture" class="rounded-full w-12 h-12 object-cover border-2 border-gray-800">
                 <p class="text-gray-300 text-xs truncate ml-2">@{{ story.user.name }}</p>
             </div>
-            <div class="flex-shrink-0 mb-2">
+            <div class="flex-shrink-0 mb-2 h-full">
                 <!-- Use mediaType to determine how to display the story -->
                 <img ng-if="story.mediaType === 'photo'" ng-src="{{ asset('storage/media') }}/@{{ story.media_url }}" class="w-full h-full rounded-lg object-cover" alt="Story Image">
-                <video ng-if="story.mediaType === 'video'" ng-src="{{ asset('storage/media') }}/@{{ story.media_url }}" class="w-full h-full rounded-lg" autoplay muted loop></video>
+                <video ng-if="story.mediaType === 'video'" ng-src="{{ asset('storage/media') }}/@{{ story.media_url }}" class="w-full h-full rounded-lg object-cover" autoplay muted loop></video>
             </div>
         </div>
     </div>
@@ -46,8 +46,6 @@
                 <label class="block text-gray-300 text-sm font-bold mb-2" for="fileUpload">Select a photo or video</label>
                 <input type="file" id="fileUpload" accept="image/*,video/*" ng-model="newStory.file" onchange="angular.element(this).scope().newStory.file = this.files[0]" class="bg-gray-700 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full" />
             </div>
-          
-               
             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg w-full transition duration-200 ease-in-out transform hover:scale-105">📤 Upload Story</button>
         </form>
     </div>
@@ -55,23 +53,23 @@
 
 
 
-        <!-- Create Post Form -->
-        <form ng-submit="createPost()" enctype="multipart/form-data" class="bg-gray-700 p-4 rounded-lg shadow-md mb-6 border border-gray-600 transition-transform transform hover:scale-105">
-            <textarea ng-model="newPost.content" placeholder="What's on your mind? 😊" required class="w-full border border-gray-600 bg-gray-900 text-white p-4 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600"></textarea>
+                <!-- Create Post Form -->
+                <form ng-submit="createPost()" enctype="multipart/form-data" class="bg-gray-700 p-4 rounded-lg shadow-md mb-6 border border-gray-600 transition-transform transform hover:scale-105">
+                    <textarea ng-model="newPost.content" placeholder="What's on your mind? 😊" required class="w-full border border-gray-600 bg-gray-900 text-white p-4 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600"></textarea>
 
-            <!-- Media Type Selection -->
-            <div class="flex items-center space-x-4 mt-4">
-                <label for="media" class="text-gray-400">Upload:</label>
-                <input type="file" accept="image/*,video/*" onchange="angular.element(this).scope().newPost.file = this.files[0]" />
-            </div>
+                    <!-- Media Type Selection -->
+                    <div class="flex items-center space-x-4 mt-4">
+                        <label for="media" class="text-gray-400">Upload:</label>
+                        <input type="file" accept="image/*,video/*" onchange="angular.element(this).scope().newPost.file = this.files[0]" />
+                    </div>
 
-            <div class="flex justify-between mt-2">
-                <div class="flex items-center space-x-2"></div>
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-                    📤 Share
-                </button>
-            </div>
-        </form>
+                    <div class="flex justify-between mt-2">
+                        <div class="flex items-center space-x-2"></div>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                            📤 Share
+                        </button>
+                    </div>
+                </form>
 <!-- Display Posts -->
 <div ng-repeat="post in posts" class="bg-gray-700 p-4 rounded-lg shadow-md mt-4 transition-transform transform hover:scale-105">
     <div class="flex items-center mb-2">
